@@ -51,17 +51,20 @@ const roleNavItems: Record<string, NavItem[]> = {
     { label: 'Dashboard', icon: LayoutDashboard, path: '/pharmacy' },
     { label: 'Prescriptions', icon: ClipboardList, path: '/pharmacy/prescriptions' },
     { label: 'Inventory', icon: Package, path: '/pharmacy/inventory' },
+    { label: 'Billing', icon: DollarSign, path: '/pharmacy/billing' },
     { label: 'Expiry Alerts', icon: AlertTriangle, path: '/pharmacy/alerts' },
   ],
   lab_technician: [
     { label: 'Dashboard', icon: LayoutDashboard, path: '/lab' },
     { label: 'Test Requests', icon: TestTube, path: '/lab/requests' },
     { label: 'Results', icon: FileText, path: '/lab/results' },
+    { label: 'Billing', icon: DollarSign, path: '/lab/billing' },
   ],
   receptionist: [
     { label: 'Dashboard', icon: LayoutDashboard, path: '/reception' },
     { label: 'New Patient', icon: UserPlus, path: '/reception/register' },
     { label: 'Appointments', icon: Calendar, path: '/reception/appointments' },
+    { label: 'Billing', icon: DollarSign, path: '/reception/billing' },
     { label: 'Queue', icon: Users, path: '/reception/queue' },
   ],
   accountant: [
