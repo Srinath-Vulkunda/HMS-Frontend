@@ -17,7 +17,8 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
-  Loader2
+  Loader2,
+  Briefcase
 } from 'lucide-react';
 
 const roles: { value: UserRole; label: string; icon: React.ElementType; description: string }[] = [
@@ -27,6 +28,7 @@ const roles: { value: UserRole; label: string; icon: React.ElementType; descript
   { value: 'lab_technician', label: 'Lab Tech', icon: TestTube, description: 'Test management' },
   { value: 'receptionist', label: 'Reception', icon: UserPlus, description: 'Patient onboarding' },
   { value: 'accountant', label: 'Accounts', icon: DollarSign, description: 'Billing & finance' },
+  { value: 'hr', label: 'HR', icon: Briefcase, description: 'Staff management' },
 ];
 
 const roleRoutes: Record<UserRole, string> = {
@@ -36,6 +38,7 @@ const roleRoutes: Record<UserRole, string> = {
   lab_technician: '/lab',
   receptionist: '/reception',
   accountant: '/accounts',
+  hr: '/hr',
 };
 
 export default function Login() {

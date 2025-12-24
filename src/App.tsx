@@ -11,6 +11,7 @@ import PharmacyDashboard from "./pages/PharmacyDashboard";
 import LabDashboard from "./pages/LabDashboard";
 import ReceptionDashboard from "./pages/ReceptionDashboard";
 import AccountsDashboard from "./pages/AccountsDashboard";
+import HRDashboard from "./pages/HRDashboard";
 import NotFound from "./pages/NotFound";
 
 // Admin pages
@@ -43,6 +44,12 @@ import Queue from "./pages/reception/Queue";
 // Accounts pages
 import Billing from "./pages/accounts/Billing";
 import FinancialReports from "./pages/accounts/FinancialReports";
+
+// HR pages
+import Payroll from "./pages/hr/Payroll";
+import Shifts from "./pages/hr/Shifts";
+import Attendance from "./pages/hr/Attendance";
+import LeaveApprovals from "./pages/hr/LeaveApprovals";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +100,13 @@ const App = () => (
             <Route path="/accounts" element={<AccountsDashboard />} />
             <Route path="/accounts/billing" element={<Billing />} />
             <Route path="/accounts/reports" element={<FinancialReports />} />
+            
+            {/* HR Routes */}
+            <Route path="/hr" element={<HRDashboard />} />
+            <Route path="/hr/payroll" element={<Payroll />} />
+            <Route path="/hr/shifts" element={<Shifts />} />
+            <Route path="/hr/attendance" element={<Attendance />} />
+            <Route path="/hr/leaves" element={<LeaveApprovals />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

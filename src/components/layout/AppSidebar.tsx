@@ -19,6 +19,10 @@ import {
   Building2,
   ChevronRight,
   Activity,
+  Briefcase,
+  Clock,
+  CalendarCheck,
+  Wallet,
 } from 'lucide-react';
 
 interface NavItem {
@@ -65,6 +69,13 @@ const roleNavItems: Record<string, NavItem[]> = {
     { label: 'Billing', icon: DollarSign, path: '/accounts/billing' },
     { label: 'Reports', icon: FileText, path: '/accounts/reports' },
   ],
+  hr: [
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/hr' },
+    { label: 'Payroll', icon: Wallet, path: '/hr/payroll' },
+    { label: 'Shifts', icon: Clock, path: '/hr/shifts' },
+    { label: 'Attendance', icon: CalendarCheck, path: '/hr/attendance' },
+    { label: 'Leave Approvals', icon: Calendar, path: '/hr/leaves' },
+  ],
 };
 
 const roleIcons: Record<string, React.ElementType> = {
@@ -74,6 +85,7 @@ const roleIcons: Record<string, React.ElementType> = {
   lab_technician: TestTube,
   receptionist: UserPlus,
   accountant: DollarSign,
+  hr: Briefcase,
 };
 
 const roleLabels: Record<string, string> = {
@@ -83,6 +95,7 @@ const roleLabels: Record<string, string> = {
   lab_technician: 'Lab Technician',
   receptionist: 'Receptionist',
   accountant: 'Accountant',
+  hr: 'HR Manager',
 };
 
 export function AppSidebar() {
