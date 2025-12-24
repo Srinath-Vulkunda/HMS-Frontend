@@ -31,15 +31,18 @@ import LabResults from "./pages/doctor/LabResults";
 import PrescriptionQueue from "./pages/pharmacy/PrescriptionQueue";
 import Inventory from "./pages/pharmacy/Inventory";
 import ExpiryAlerts from "./pages/pharmacy/ExpiryAlerts";
+import PharmacyBilling from "./pages/pharmacy/Billing";
 
 // Lab pages
 import TestRequests from "./pages/lab/TestRequests";
 import Results from "./pages/lab/Results";
+import LabBilling from "./pages/lab/Billing";
 
 // Reception pages
 import PatientRegistration from "./pages/reception/PatientRegistration";
 import AppointmentBooking from "./pages/reception/AppointmentBooking";
 import Queue from "./pages/reception/Queue";
+import ReceptionBilling from "./pages/reception/Billing";
 
 // Accounts pages
 import Billing from "./pages/accounts/Billing";
@@ -83,17 +86,20 @@ const App = () => (
             <Route path="/pharmacy" element={<PharmacyDashboard />} />
             <Route path="/pharmacy/prescriptions" element={<PrescriptionQueue />} />
             <Route path="/pharmacy/inventory" element={<Inventory />} />
+            <Route path="/pharmacy/billing" element={<PharmacyBilling />} />
             <Route path="/pharmacy/alerts" element={<ExpiryAlerts />} />
             
             {/* Lab Routes */}
             <Route path="/lab" element={<LabDashboard />} />
             <Route path="/lab/requests" element={<TestRequests />} />
             <Route path="/lab/results" element={<Results />} />
+            <Route path="/lab/billing" element={<LabBilling />} />
             
             {/* Reception Routes */}
             <Route path="/reception" element={<ReceptionDashboard />} />
             <Route path="/reception/register" element={<PatientRegistration />} />
             <Route path="/reception/appointments" element={<AppointmentBooking />} />
+            <Route path="/reception/billing" element={<ReceptionBilling />} />
             <Route path="/reception/queue" element={<Queue />} />
             
             {/* Accounts Routes */}
