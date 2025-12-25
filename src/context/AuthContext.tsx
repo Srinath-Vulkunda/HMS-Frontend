@@ -59,6 +59,13 @@ const mockUsers: Record<UserRole, User> = {
     role: 'hr',
     department: 'Human Resources',
   },
+  nurse: {
+    id: '8',
+    name: 'Rachel Green',
+    email: 'nurse@hms.com',
+    role: 'nurse',
+    department: 'Nursing',
+  },
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
