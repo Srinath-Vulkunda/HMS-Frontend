@@ -23,6 +23,10 @@ import {
   Clock,
   CalendarCheck,
   Wallet,
+  Heart,
+  Thermometer,
+  UtensilsCrossed,
+  RotateCcw,
 } from 'lucide-react';
 
 interface NavItem {
@@ -79,6 +83,13 @@ const roleNavItems: Record<string, NavItem[]> = {
     { label: 'Attendance', icon: CalendarCheck, path: '/hr/attendance' },
     { label: 'Leave Approvals', icon: Calendar, path: '/hr/leaves' },
   ],
+  nurse: [
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/nurse' },
+    { label: 'Patient Care', icon: Heart, path: '/nurse/patients' },
+    { label: 'Vitals', icon: Thermometer, path: '/nurse/vitals' },
+    { label: 'Meals', icon: UtensilsCrossed, path: '/nurse/meals' },
+    { label: 'Rounds', icon: RotateCcw, path: '/nurse/rounds' },
+  ],
 };
 
 const roleIcons: Record<string, React.ElementType> = {
@@ -89,6 +100,7 @@ const roleIcons: Record<string, React.ElementType> = {
   receptionist: UserPlus,
   accountant: DollarSign,
   hr: Briefcase,
+  nurse: Heart,
 };
 
 const roleLabels: Record<string, string> = {
@@ -99,6 +111,7 @@ const roleLabels: Record<string, string> = {
   receptionist: 'Receptionist',
   accountant: 'Accountant',
   hr: 'HR Manager',
+  nurse: 'Nurse',
 };
 
 export function AppSidebar() {

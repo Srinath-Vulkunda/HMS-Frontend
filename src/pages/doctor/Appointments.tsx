@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,7 +34,7 @@ const statusConfig: Record<string, { color: string; icon: React.ElementType }> =
   cancelled: { color: 'bg-red-500/20 text-red-400 border-red-500/30', icon: XCircle },
 };
 
-function AppointmentCard({ appointment, showDate = false }: { appointment: typeof appointments.today[0] & { date?: string }, showDate?: boolean }) {
+function AppointmentCard({ appointment, showDate = false, onStart }: { appointment: typeof appointments.today[0] & { date?: string }, showDate?: boolean, onStart?: (id: string) => void }) {
   const config = statusConfig[appointment.status];
   const StatusIcon = config.icon;
 
@@ -64,7 +65,7 @@ function AppointmentCard({ appointment, showDate = false }: { appointment: typeo
       </div>
       <div className="flex gap-2">
         {appointment.status === 'waiting' && (
-          <Button size="sm" className="gap-1">
+          <Button size="sm" className="gap-1" onClick={() => onStart?.(appointment.id)}>
             <Play className="w-3 h-3" />
             Start
           </Button>
@@ -86,6 +87,12 @@ function AppointmentCard({ appointment, showDate = false }: { appointment: typeo
 }
 
 export default function Appointments() {
+  const navigate = useNavigate();
+
+  const handleStartConsultation = (appointmentId: string) => {
+    navigate(`/doctor/consultation/${appointmentId}`);
+  };
+
   return (
     <DashboardLayout title="Appointments" subtitle="Manage your appointments">
       <Tabs defaultValue="today" className="space-y-6">
@@ -98,7 +105,7 @@ export default function Appointments() {
         <TabsContent value="today" className="space-y-4">
           {appointments.today.map((apt, index) => (
             <div key={apt.id} className={`stagger-${(index % 4) + 1}`}>
-              <AppointmentCard appointment={apt} />
+              <AppointmentCard appointment={apt} onStart={handleStartConsultation} />
             </div>
           ))}
         </TabsContent>
