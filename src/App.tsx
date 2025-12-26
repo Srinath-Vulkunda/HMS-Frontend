@@ -54,6 +54,16 @@ import Shifts from "./pages/hr/Shifts";
 import Attendance from "./pages/hr/Attendance";
 import LeaveApprovals from "./pages/hr/LeaveApprovals";
 
+// Nurse pages
+import NurseDashboard from "./pages/NurseDashboard";
+import PatientCare from "./pages/nurse/PatientCare";
+import VitalsRecording from "./pages/nurse/VitalsRecording";
+import MealManagement from "./pages/nurse/MealManagement";
+import Rounds from "./pages/nurse/Rounds";
+
+// Doctor consultation
+import Consultation from "./pages/doctor/Consultation";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -79,6 +89,7 @@ const App = () => (
             <Route path="/doctor" element={<DoctorDashboard />} />
             <Route path="/doctor/patients" element={<Patients />} />
             <Route path="/doctor/appointments" element={<DoctorAppointments />} />
+            <Route path="/doctor/consultation/:appointmentId" element={<Consultation />} />
             <Route path="/doctor/prescriptions" element={<Prescriptions />} />
             <Route path="/doctor/lab-results" element={<LabResults />} />
             
@@ -113,6 +124,13 @@ const App = () => (
             <Route path="/hr/shifts" element={<Shifts />} />
             <Route path="/hr/attendance" element={<Attendance />} />
             <Route path="/hr/leaves" element={<LeaveApprovals />} />
+            
+            {/* Nurse Routes */}
+            <Route path="/nurse" element={<NurseDashboard />} />
+            <Route path="/nurse/patients" element={<PatientCare />} />
+            <Route path="/nurse/vitals" element={<VitalsRecording />} />
+            <Route path="/nurse/meals" element={<MealManagement />} />
+            <Route path="/nurse/rounds" element={<Rounds />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>
