@@ -10,17 +10,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Calendar, Clock, User, Stethoscope, Check } from 'lucide-react';
-import { useState } from 'react';
+import { Calendar, Clock, User, Stethoscope, Check, IndianRupee } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const doctors = [
-  { id: 'D001', name: 'Dr. John Smith', department: 'Cardiology', available: true },
-  { id: 'D002', name: 'Dr. Emily Davis', department: 'Neurology', available: true },
-  { id: 'D003', name: 'Dr. Robert Wilson', department: 'Orthopedics', available: false },
-  { id: 'D004', name: 'Dr. Sarah Chen', department: 'Pediatrics', available: true },
-  { id: 'D005', name: 'Dr. Michael Brown', department: 'Dermatology', available: true },
+  { id: 'D001', name: 'Dr. John Smith', department: 'Cardiology', available: true, consultationFee: 800 },
+  { id: 'D002', name: 'Dr. Emily Davis', department: 'Neurology', available: true, consultationFee: 1000 },
+  { id: 'D003', name: 'Dr. Robert Wilson', department: 'Orthopedics', available: false, consultationFee: 700 },
+  { id: 'D004', name: 'Dr. Sarah Chen', department: 'Pediatrics', available: true, consultationFee: 600 },
+  { id: 'D005', name: 'Dr. Michael Brown', department: 'Dermatology', available: true, consultationFee: 500 },
 ];
+
+const appointmentTypeFees: Record<string, number> = {
+  consultation: 0,
+  followup: -200,
+  checkup: 100,
+  emergency: 300,
+};
 
 const timeSlots = [
   '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
@@ -30,11 +38,24 @@ const timeSlots = [
 const bookedSlots = ['09:30 AM', '10:00 AM', '02:30 PM'];
 
 export default function AppointmentBooking() {
+  const navigate = useNavigate();
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [patientSearch, setPatientSearch] = useState('');
   const [appointmentType, setAppointmentType] = useState('');
+
+  const selectedDoctorData = useMemo(() => 
+    doctors.find(d => d.id === selectedDoctor), 
+    [selectedDoctor]
+  );
+
+  const totalFee = useMemo(() => {
+    if (!selectedDoctorData) return 0;
+    const baseFee = selectedDoctorData.consultationFee;
+    const typeAdjustment = appointmentType ? appointmentTypeFees[appointmentType] || 0 : 0;
+    return Math.max(0, baseFee + typeAdjustment);
+  }, [selectedDoctorData, appointmentType]);
 
   const handleBook = () => {
     if (!selectedDoctor || !selectedDate || !selectedTime || !patientSearch) {
@@ -42,13 +63,21 @@ export default function AppointmentBooking() {
       return;
     }
     const tokenNo = Math.floor(Math.random() * 100) + 1;
-    toast.success(`Appointment booked! Token #${tokenNo}`);
-    // Reset form
-    setSelectedDoctor('');
-    setSelectedDate('');
-    setSelectedTime('');
-    setPatientSearch('');
-    setAppointmentType('');
+    toast.success(`Appointment booked! Token #${tokenNo}. Redirecting to billing...`);
+    
+    // Navigate to billing with appointment details
+    navigate('/reception/billing', {
+      state: {
+        patientName: patientSearch,
+        doctorName: selectedDoctorData?.name,
+        department: selectedDoctorData?.department,
+        appointmentDate: selectedDate,
+        appointmentTime: selectedTime,
+        appointmentType: appointmentType || 'consultation',
+        consultationFee: totalFee,
+        tokenNo,
+      }
+    });
   };
 
   return (
@@ -81,10 +110,10 @@ export default function AppointmentBooking() {
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="consultation">Consultation</SelectItem>
-                  <SelectItem value="followup">Follow-up</SelectItem>
-                  <SelectItem value="checkup">General Checkup</SelectItem>
-                  <SelectItem value="emergency">Emergency</SelectItem>
+                  <SelectItem value="consultation">Consultation (Standard)</SelectItem>
+                  <SelectItem value="followup">Follow-up (-₹200)</SelectItem>
+                  <SelectItem value="checkup">General Checkup (+₹100)</SelectItem>
+                  <SelectItem value="emergency">Emergency (+₹300)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -123,16 +152,21 @@ export default function AppointmentBooking() {
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">{doctor.department}</p>
-                <Badge
-                  variant="outline"
-                  className={`mt-2 ${
-                    doctor.available
-                      ? 'bg-green-500/20 text-green-400 border-green-500/30'
-                      : 'bg-red-500/20 text-red-400 border-red-500/30'
-                  }`}
-                >
-                  {doctor.available ? 'Available' : 'Unavailable'}
-                </Badge>
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge
+                    variant="outline"
+                    className={`${
+                      doctor.available
+                        ? 'bg-green-500/20 text-green-400 border-green-500/30'
+                        : 'bg-red-500/20 text-red-400 border-red-500/30'
+                    }`}
+                  >
+                    {doctor.available ? 'Available' : 'Unavailable'}
+                  </Badge>
+                  <Badge variant="outline" className="bg-primary/20 text-primary border-primary/30">
+                    ₹{doctor.consultationFee}
+                  </Badge>
+                </div>
               </button>
             ))}
           </div>
@@ -190,12 +224,47 @@ export default function AppointmentBooking() {
           </div>
         </div>
 
+        {/* Fee Summary */}
+        {selectedDoctor && (
+          <div className="bg-card border border-border rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                <IndianRupee className="w-5 h-5 text-yellow-400" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-foreground">Fee Summary</h3>
+                <p className="text-sm text-muted-foreground">Consultation charges</p>
+              </div>
+            </div>
+            <div className="space-y-2 p-4 bg-secondary/30 rounded-xl">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Doctor Consultation Fee</span>
+                <span className="text-foreground">₹{selectedDoctorData?.consultationFee || 0}</span>
+              </div>
+              {appointmentType && appointmentTypeFees[appointmentType] !== 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {appointmentType.charAt(0).toUpperCase() + appointmentType.slice(1)} Adjustment
+                  </span>
+                  <span className={appointmentTypeFees[appointmentType] > 0 ? 'text-red-400' : 'text-green-400'}>
+                    {appointmentTypeFees[appointmentType] > 0 ? '+' : ''}₹{appointmentTypeFees[appointmentType]}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between font-semibold pt-2 border-t border-border">
+                <span>Total Amount</span>
+                <span className="text-primary text-lg">₹{totalFee}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Book Button */}
         <div className="flex justify-end gap-4">
           <Button variant="outline">Cancel</Button>
           <Button onClick={handleBook} className="gap-2">
             <Calendar className="w-4 h-4" />
-            Book Appointment
+            Book & Proceed to Billing
           </Button>
         </div>
       </div>

@@ -18,31 +18,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Receipt, User, Printer, CreditCard, Trash2, Plus, Calendar, Stethoscope } from 'lucide-react';
-import { useState } from 'react';
+import { Receipt, User, Printer, CreditCard, Trash2, Plus, Calendar, Stethoscope, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const consultationFees = [
-  { id: 'C001', name: 'General Consultation', price: 50.00 },
-  { id: 'C002', name: 'Specialist Consultation', price: 100.00 },
-  { id: 'C003', name: 'Emergency Consultation', price: 150.00 },
-  { id: 'C004', name: 'Follow-up Visit', price: 30.00 },
-  { id: 'C005', name: 'Annual Checkup', price: 200.00 },
+  { id: 'C001', name: 'General Consultation', price: 500 },
+  { id: 'C002', name: 'Specialist Consultation', price: 1000 },
+  { id: 'C003', name: 'Emergency Consultation', price: 1500 },
+  { id: 'C004', name: 'Follow-up Visit', price: 300 },
+  { id: 'C005', name: 'Annual Checkup', price: 2000 },
 ];
 
 const additionalServices = [
-  { id: 'S001', name: 'ECG', price: 25.00 },
-  { id: 'S002', name: 'X-Ray', price: 75.00 },
-  { id: 'S003', name: 'Blood Pressure Check', price: 10.00 },
-  { id: 'S004', name: 'Wound Dressing', price: 20.00 },
-  { id: 'S005', name: 'Injection Administration', price: 15.00 },
+  { id: 'S001', name: 'ECG', price: 250 },
+  { id: 'S002', name: 'X-Ray', price: 750 },
+  { id: 'S003', name: 'Blood Pressure Check', price: 100 },
+  { id: 'S004', name: 'Wound Dressing', price: 200 },
+  { id: 'S005', name: 'Injection Administration', price: 150 },
 ];
 
 const recentBills = [
-  { id: 'RB001', patient: 'John Doe', doctor: 'Dr. Smith', type: 'Consultation', total: 100.00, status: 'paid', time: '11:00 AM' },
-  { id: 'RB002', patient: 'Jane Smith', doctor: 'Dr. Davis', type: 'Follow-up', total: 30.00, status: 'paid', time: '10:45 AM' },
-  { id: 'RB003', patient: 'Mike Johnson', doctor: 'Dr. Wilson', type: 'Emergency', total: 175.00, status: 'pending', time: '10:30 AM' },
-  { id: 'RB004', patient: 'Emily Brown', doctor: 'Dr. Chen', type: 'Checkup', total: 225.00, status: 'paid', time: '10:15 AM' },
+  { id: 'RB001', patient: 'John Doe', doctor: 'Dr. Smith', type: 'Consultation', total: 1000, status: 'paid', time: '11:00 AM' },
+  { id: 'RB002', patient: 'Jane Smith', doctor: 'Dr. Davis', type: 'Follow-up', total: 300, status: 'paid', time: '10:45 AM' },
+  { id: 'RB003', patient: 'Mike Johnson', doctor: 'Dr. Wilson', type: 'Emergency', total: 1750, status: 'pending', time: '10:30 AM' },
+  { id: 'RB004', patient: 'Emily Brown', doctor: 'Dr. Chen', type: 'Checkup', total: 2250, status: 'paid', time: '10:15 AM' },
 ];
 
 interface BillItem {
@@ -52,12 +53,51 @@ interface BillItem {
   quantity: number;
 }
 
+interface AppointmentState {
+  patientName?: string;
+  doctorName?: string;
+  department?: string;
+  appointmentDate?: string;
+  appointmentTime?: string;
+  appointmentType?: string;
+  consultationFee?: number;
+  tokenNo?: number;
+}
+
 export default function ReceptionBilling() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const appointmentData = location.state as AppointmentState | null;
+  
   const [items, setItems] = useState<BillItem[]>([]);
   const [patientName, setPatientName] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [appointmentType, setAppointmentType] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState(new Date().toISOString().split('T')[0]);
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [tokenNo, setTokenNo] = useState<number | null>(null);
+
+  // Pre-fill from appointment booking
+  useEffect(() => {
+    if (appointmentData) {
+      if (appointmentData.patientName) setPatientName(appointmentData.patientName);
+      if (appointmentData.doctorName) setSelectedDoctor(appointmentData.doctorName);
+      if (appointmentData.appointmentType) setAppointmentType(appointmentData.appointmentType);
+      if (appointmentData.appointmentDate) setAppointmentDate(appointmentData.appointmentDate);
+      if (appointmentData.tokenNo) setTokenNo(appointmentData.tokenNo);
+      
+      // Auto-add consultation fee
+      if (appointmentData.consultationFee && appointmentData.doctorName) {
+        const consultationItem: BillItem = {
+          id: 'APPT-CONSULTATION',
+          name: `${appointmentData.doctorName} - ${appointmentData.department || 'Consultation'} (${appointmentData.appointmentType || 'consultation'})`,
+          price: appointmentData.consultationFee,
+          quantity: 1,
+        };
+        setItems([consultationItem]);
+      }
+    }
+  }, [appointmentData]);
 
   const addItem = (item: { id: string; name: string; price: number }) => {
     setItems(prev => {
@@ -84,15 +124,34 @@ export default function ReceptionBilling() {
       toast.error('Please add patient name and services');
       return;
     }
-    toast.success(`Bill generated for ${patientName} - Total: $${total.toFixed(2)}`);
+    toast.success(`Bill generated for ${patientName} - Total: ₹${total.toFixed(2)}`);
     setItems([]);
     setPatientName('');
     setSelectedDoctor('');
     setAppointmentType('');
+    setTokenNo(null);
+    // Clear navigation state
+    navigate('/reception/billing', { replace: true, state: null });
   };
 
   return (
     <DashboardLayout title="Reception Billing" subtitle="Generate bills for appointments and services">
+      {/* Appointment Banner */}
+      {appointmentData && tokenNo && (
+        <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-2xl flex items-center gap-4">
+          <CheckCircle className="w-6 h-6 text-green-400" />
+          <div className="flex-1">
+            <p className="font-medium text-foreground">Appointment Booked Successfully!</p>
+            <p className="text-sm text-muted-foreground">
+              Token #{tokenNo} • {appointmentData.patientName} • {appointmentData.doctorName} • {appointmentData.appointmentDate} at {appointmentData.appointmentTime}
+            </p>
+          </div>
+          <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/30">
+            Token #{tokenNo}
+          </Badge>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Patient & Services Selection */}
         <div className="lg:col-span-2 space-y-6">
@@ -120,10 +179,10 @@ export default function ReceptionBilling() {
                     <SelectValue placeholder="Select doctor" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="dr-smith">Dr. John Smith</SelectItem>
-                    <SelectItem value="dr-davis">Dr. Emily Davis</SelectItem>
-                    <SelectItem value="dr-wilson">Dr. Robert Wilson</SelectItem>
-                    <SelectItem value="dr-chen">Dr. Sarah Chen</SelectItem>
+                    <SelectItem value="Dr. John Smith">Dr. John Smith - Cardiology</SelectItem>
+                    <SelectItem value="Dr. Emily Davis">Dr. Emily Davis - Neurology</SelectItem>
+                    <SelectItem value="Dr. Robert Wilson">Dr. Robert Wilson - Orthopedics</SelectItem>
+                    <SelectItem value="Dr. Sarah Chen">Dr. Sarah Chen - Pediatrics</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -134,7 +193,7 @@ export default function ReceptionBilling() {
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="new">New Patient</SelectItem>
+                    <SelectItem value="consultation">Consultation</SelectItem>
                     <SelectItem value="followup">Follow-up</SelectItem>
                     <SelectItem value="emergency">Emergency</SelectItem>
                     <SelectItem value="checkup">General Checkup</SelectItem>
@@ -143,7 +202,11 @@ export default function ReceptionBilling() {
               </div>
               <div className="space-y-2">
                 <Label>Date</Label>
-                <Input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
+                <Input 
+                  type="date" 
+                  value={appointmentDate}
+                  onChange={(e) => setAppointmentDate(e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -167,7 +230,7 @@ export default function ReceptionBilling() {
                     <span className="font-medium text-foreground">{fee.name}</span>
                     <Plus className="w-4 h-4 text-primary" />
                   </div>
-                  <span className="text-lg font-semibold text-primary">${fee.price.toFixed(2)}</span>
+                  <span className="text-lg font-semibold text-primary">₹{fee.price}</span>
                 </button>
               ))}
             </div>
@@ -189,7 +252,7 @@ export default function ReceptionBilling() {
                   className="p-3 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-center"
                 >
                   <span className="text-sm font-medium text-foreground block">{service.name}</span>
-                  <span className="text-sm font-semibold text-primary">${service.price.toFixed(2)}</span>
+                  <span className="text-sm font-semibold text-primary">₹{service.price}</span>
                 </button>
               ))}
             </div>
@@ -216,7 +279,7 @@ export default function ReceptionBilling() {
                     <TableCell>{bill.patient}</TableCell>
                     <TableCell>{bill.doctor}</TableCell>
                     <TableCell>{bill.type}</TableCell>
-                    <TableCell>${bill.total.toFixed(2)}</TableCell>
+                    <TableCell>₹{bill.total}</TableCell>
                     <TableCell>
                       <Badge
                         variant="outline"
@@ -256,10 +319,10 @@ export default function ReceptionBilling() {
                   <div key={item.id} className="flex items-center justify-between p-3 bg-secondary/30 rounded-xl">
                     <div className="flex-1">
                       <p className="font-medium text-foreground text-sm">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">${item.price.toFixed(2)} × {item.quantity}</p>
+                      <p className="text-xs text-muted-foreground">₹{item.price} × {item.quantity}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-foreground">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-semibold text-foreground">₹{item.price * item.quantity}</span>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -275,15 +338,15 @@ export default function ReceptionBilling() {
                 <div className="border-t border-border pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">${subtotal.toFixed(2)}</span>
+                    <span className="text-foreground">₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax (5%)</span>
-                    <span className="text-foreground">${tax.toFixed(2)}</span>
+                    <span className="text-foreground">₹{tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-lg font-semibold">
                     <span className="text-foreground">Total</span>
-                    <span className="text-primary">${total.toFixed(2)}</span>
+                    <span className="text-primary">₹{total.toFixed(2)}</span>
                   </div>
                 </div>
 
